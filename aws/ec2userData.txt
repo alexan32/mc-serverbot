@@ -1,0 +1,29 @@
+Content-Type: multipart/mixed; boundary="//"
+MIME-Version: 1.0
+
+--//
+Content-Type: text/cloud-config; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cloud-config.txt"
+
+#cloud-config
+cloud_final_modules:
+- [scripts-user, always]
+
+--//
+Content-Type: text/x-shellscript; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="userdata.txt"
+
+#!/bin/bash
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+sudo yum -y install java-1.8.0
+sudo mkdir /minecraft
+sudo chown -R ec2-user:ec2-user /minecraft
+cd /minecraft
+sudo aws s3 cp s3://minecraft-server-bucket/setup/spigot.jar .
+sudo aws s3 cp s3://minecraft-server-bucket/setup/eula.txt .
+sudo java -Xmx2G -Xms512M -jar spigot.jar nogui
+--//
